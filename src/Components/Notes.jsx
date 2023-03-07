@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "../App.css";
 import Note from "./Note";
@@ -8,17 +8,38 @@ import { addNote } from "../Stores/notes";
 function Notes() {
 	const notes = useSelector(state => state.notes.notes);
 	const dispatch = useDispatch();
+  const [notesTemp, setNotesTemp] = useState(notes)
 
 	const [color, setColor] = useState("#fc4a4a");
   const [note, setNote] = useState("")
 
+
+
+  useEffect(() => {
+    setNotesTemp(notes)
+  }, [notes])
+
   const addNoteFunc = () => {
+
     let noteObj = {
       note : note,
       color : color
     }
 
     dispatch(addNote(noteObj))
+    setNote("")
+  }
+
+  const filterNotes = (e) => {
+    let filteredData = notes.filter((note) => {
+      return note.note.toUpperCase().includes(e.toUpperCase())
+    })
+    if(e === ""){
+      setNotesTemp(notes)
+    }else{
+      setNotesTemp(filteredData)
+    }
+
   }
 
 	return (
@@ -26,6 +47,7 @@ function Notes() {
 			<div
 				style={{
 					backgroundColor: "gray",
+          
 					width: "40%",
 					margin: "0 auto",
 					borderRadius: "10px",
@@ -42,6 +64,7 @@ function Notes() {
 						borderRadius: "10px",
 						fontSize: 20,
 					}}
+          onChange={(e) => filterNotes(e.target.value)}
 					type='text'
 				/>
 
@@ -67,6 +90,7 @@ function Notes() {
 								border: "none",
 								outline: "none",
 							}}
+              value={note}
               onChange={(e) => setNote(e.target.value)}
               ></textarea>
 						<div
@@ -106,13 +130,13 @@ function Notes() {
 						width: "80%",
 						margin: "20px auto",
 					}}>
-
+            <div style={{height: '50vh', overflow: 'auto'}}>
             {
-              notes.map((note, index) => {
+              notesTemp.map((note, index) => {
                 return <Note key={index} color={note.color} note={note.note} />
               })
             }
-				
+				</div>
 				</div>
 			</div>
 		</div>
